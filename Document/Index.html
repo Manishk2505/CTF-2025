@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>IDOR CTF — Documents</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; margin: 2rem; }
+    .doc { padding: 1rem; background: #f7f7f7; border: 1px solid #ddd; }
+    .hint { margin-top: 1rem; color: #555; }
+    .small { color: #777; font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <h2>Internal Portal — Documents</h2>
+  <div id="status" class="small"></div>
+  <div id="content" class="doc"></div>
+  <div class="hint">Hint: This page relies on the id query parameter.</div>
+
+  <script>
+    // Helpers
+    function getCookie(name) {
+      const m = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+      return m ? decodeURIComponent(m[2]) : null;
+    }
+    function getParam(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
+    }
+
+    // Simulated data
+    const docs = {
+      1336: "Performance Review for user-1336: Great teamwork and delivery.",
+      1337: "Performance Review for user-1337: Solid performance across sprints.",
+      1338: "Performance Review for user-1338: Reliable contributor and code quality.",
+      // Set the real CTF flag here:
+      1000: "Performance Review for CEO-1000: Confidential. FLAG{SET_COMPANY_FLAG_HERE}"
+    };
+
+    // "Auth" check: only ensures someone is logged in (cookie present).
+    // Intentional vulnerability: does NOT verify that requested id belongs to uid.
+    const uid = getCookie('uid');
+    const id = getParam('id');
+
+    const status = document.getElementById('status');
+    const content = document.getElementById('content');
+
+    if (!uid) {
+      status.textContent = "Not logged in. Go back to the login page.";
+      content.textContent = "";
+    } else if (!id || !/^\d+$/.test(id)) {
+      status.textContent = "Logged in as uid=" + uid + ".";
+      content.textContent = "No document id provided.";
+    } else {
+      status.textContent = "Logged in as uid=" + uid + ". Viewing id=" + id + ".";
+      const docText = docs[id];
+      if (docText) {
+        content.textContent = docText;
+      } else {
+        content.textContent = "Document not found.";
+      }
+    }
+  </script>
+</body>
+</html>
