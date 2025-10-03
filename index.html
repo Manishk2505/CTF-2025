@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>IDOR CTF — Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body { font-family: system-ui, Arial, sans-serif; margin: 2rem; }
+    input { padding: 0.4rem; margin-right: 0.5rem; }
+    button { padding: 0.4rem 0.8rem; }
+    .hint { margin-top: 1rem; color: #555; }
+  </style>
+</head>
+<body>
+  <h2>Internal Portal — Login</h2>
+  <form id="loginForm">
+    <label>User ID:</label>
+    <input name="userId" id="userId" value="1337" />
+    <button type="submit">Login</button>
+  </form>
+  <p>Available users: 1336, 1337, 1338; CEO: 1000</p>
+  <div class="hint">After login, the portal redirects to documents/?id=&lt;your-id&gt;.</div>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+      const userId = document.getElementById('userId').value.trim();
+      if (!/^\d+$/.test(userId)) {
+        alert('Enter a numeric user ID');
+        return;
+      }
+      // Simulate login by setting a cookie with uid (intentionally not secure)
+      document.cookie = "uid=" + encodeURIComponent(userId) + "; path=/";
+      // Redirect to "own" document by default
+      window.location.href = "documents/?id=" + encodeURIComponent(userId);
+    });
+  </script>
+</body>
+</html>
